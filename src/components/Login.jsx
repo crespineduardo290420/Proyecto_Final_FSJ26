@@ -3,8 +3,11 @@ import { IoInformationCircleSharp } from "react-icons/io5";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import loginPoint from "../services/authServices";
+import { useState } from "react";
 
 function Login() {
+  const [message, setMessage] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -15,12 +18,19 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async (data) => {
-    console.log(data);
-    const response = await loginPoint(data);
-    console.log(response);
-    if (response?.token) {
-      sessionStorage.setItem("api-token", response.token);
-      navigate("/Dashboard");
+    try {
+      const response = await loginPoint(data);
+      console.log(response);
+
+      if (response?.token) {
+        sessionStorage.setItem("api-token", response.token);
+        navigate("/Dashboard");
+      } else {
+        setMessage(response?.message || "Invalid username or password.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setMessage("An error occurred while logging in. Please try again.");
     }
   };
 
@@ -47,11 +57,12 @@ function Login() {
               <input
                 type="text"
                 id="username"
-                {...register("email")}
+                {...register("email", { required: "Your email is required" })}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Correo@Ejemplo.com"
               />
             </div>
+            {errors.email && <p className="errors">{errors.email.message}</p>}
           </div>
 
           <div>
@@ -66,11 +77,16 @@ function Login() {
               <input
                 type="password"
                 id="password"
-                {...register("password")}
+                {...register("password", {
+                  required: "Your password is riquired",
+                })}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="**********"
               />
             </div>
+            {errors.password && (
+              <p className="errors">{errors.password.message}</p>
+            )}
             <div className="flex items-end justify-center text-2xl font-bold text-center mb-6 mt-5 ml-36 cursor-pointer ">
               <FaKey className="text-gray-400 mr-2" />
               <p className="text-sm font-medium text-gray-700 hover:text-blue-800 transition-colors">
@@ -95,7 +111,7 @@ function Login() {
             </span>
           </div>
         </form>
-        {/* {message && <p className="mt-4 text-center text-red-500">{message}</p>} */}
+        {message && <p className="mt-4 text-center text-red-500">{message}</p>}
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React from "react";
 import Login from "./components/Login";
 import { BrowserRouter, Route, Routes } from "react-router";
 import Dashboard from "./components/Dashboard";
+import "./App.css";
 
 function App() {
   return (
