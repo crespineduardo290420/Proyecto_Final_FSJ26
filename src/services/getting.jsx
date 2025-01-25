@@ -8,9 +8,7 @@ const accommodationGet = async () => {
       "https://apibookingsaccomodations-production.up.railway.app/api/V1/accomodations",
       {
         headers: {
-          Authorization:
-            "Bearer 977|jjNjmChzJGriia5h0n4sxEJ3wWRX7DAuHxz9qzlMed9ba9f8",
-          // `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       }
     );

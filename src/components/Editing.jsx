@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
-import accommodationGet from "../Services/getting";
+import accommodationGet from "../services/getting";
 import accommodationGetById from "../Services/gettingById";
 import accommodationPut from "../Services/updating";
 import AccommodationForm from "./AccommodationFormEditing";

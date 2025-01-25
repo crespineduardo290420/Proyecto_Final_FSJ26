@@ -2,7 +2,6 @@ import axios from "axios";
 
 const token = sessionStorage.getItem("api-token");
 
-
 const accommodationPut = async (id, place) => {
   try {
     const response = await axios.put(
@@ -10,9 +9,7 @@ const accommodationPut = async (id, place) => {
       place,
       {
         headers: {
-          Authorization:
-            "Bearer 977|jjNjmChzJGriia5h0n4sxEJ3wWRX7DAuHxz9qzlMed9ba9f8",
-          // `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       }
     );

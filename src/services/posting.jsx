@@ -9,9 +9,7 @@ const accommodationPost = async (place) => {
       place,
       {
         headers: {
-          Authorization:
-            "Bearer 977|jjNjmChzJGriia5h0n4sxEJ3wWRX7DAuHxz9qzlMed9ba9f8",
-          // `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       }
     );
