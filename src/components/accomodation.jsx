@@ -61,9 +61,10 @@ function Accommodation({ isModalOpen, setIsModalOpen }) {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-800">Alojamientos</h1>
+        
         <button
           onClick={toggleModal}
-          className="block text-black bg-[#d0db23] hover:bg-[#c0c72c] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center "
+          className="relative py-2 px-8 text-black font-medium text-base nded-full overflow-hidden bg-[#E3F64B] rounded-md transition-all duration-400 ease-in-out shadow-md hover:scale-105 hover:text-white hover:shadow-lg active:scale-90 before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-blue-500 before:to-blue-300 before:transition-all before:duration-500 before:ease-in-out before:z-[-1] before:rounded-md hover:before:left-0 "
           type="button"
         >
           <FontAwesomeIcon icon={faCirclePlus} size="1x" className="mr-2" />

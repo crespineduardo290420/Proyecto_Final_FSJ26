@@ -61,7 +61,7 @@ export function BookingCalendar() {
             </button>
             <button
               onClick={() => setShowNewBooking(true)}
-              className="px-4 py-2 bg-[#E3F64B] text-black rounded-md hover:bg-[#d4e745]"
+              className="px-4 py-2 bg-[#E3F64B] text-black font-medium rounded-md hover:bg-[#d4e745]"
             >
               + Nueva Reservación
             </button>
