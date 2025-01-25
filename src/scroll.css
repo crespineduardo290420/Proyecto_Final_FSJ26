@@ -1,0 +1,25 @@
+/* Estilos para el scroll */
+.custom-scroll {
+    overflow-y: scroll; /* Habilitar scroll */
+    max-height: 550px; /* Limita la altura para que se active el scroll */
+    padding-right: 15px; /* Asegúrate de que el scroll no cubra el borde */
+    position: relative; /* Para asegurarse de que el scroll no lo cubra */
+}
+
+/* Estilo del scrollbar */
+.custom-scroll::-webkit-scrollbar {
+    width: 8px; /* Grosor del scroll */
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background-color: #4A90E2; /* Color del thumb */
+    border-radius: 10px; /* Bordes redondeados */
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Color de la pista */
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+
