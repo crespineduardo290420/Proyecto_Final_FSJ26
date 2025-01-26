@@ -1,22 +1,28 @@
 import React from "react"
 import { MapPin, Calendar, User, Moon, X } from "lucide-react"
+import { updateBookingStatus } from "../services/bookingService"
 
 export function BookingDetailsDialog({ booking, open, onOpenChange, onUpdate, onDelete }) {
   const statusColors = {
-    confirmed: "bg-blue-100 text-blue-800",
-    pending: "bg-yellow-100 text-yellow-800",
-    cancelled: "bg-red-100 text-red-800",
+    CONFIRMED: "bg-blue-100 text-blue-800",
+    PENDING: "bg-yellow-100 text-yellow-800",
+    CANCELLED: "bg-red-100 text-red-800",
   }
 
   const statusText = {
-    confirmed: "Confirmada",
-    pending: "Pendiente",
-    cancelled: "Cancelada",
+    CONFIRMED: "Confirmada",
+    PENDING: "Pendiente",
+    CANCELLED: "Cancelada",
   }
 
-  const nights = Math.ceil(
-    (new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24),
-  )
+  const handleStatusChange = async (newStatus) => {
+    try {
+      await updateBookingStatus(booking.id, newStatus)
+      onUpdate({ ...booking, status: newStatus })
+    } catch (error) {
+      console.error("Failed to update booking status", error)
+    }
+  }
 
   if (!open) return null
 
@@ -39,21 +45,21 @@ export function BookingDetailsDialog({ booking, open, onOpenChange, onUpdate, on
             </div>
             <select
               value={booking.status}
-              onChange={(e) => onUpdate({ ...booking, status: e.target.value })}
+              onChange={(e) => handleStatusChange(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             >
-              <option value="confirmed">Confirmada</option>
-              <option value="pending">Pendiente</option>
-              <option value="cancelled">Cancelada</option>
+              <option value="CONFIRMED">Confirmada</option>
+              <option value="PENDING">Pendiente</option>
+              <option value="CANCELLED">Cancelada</option>
             </select>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-1">
-              <div className="text-lg font-medium">{booking.guestName || "Sin nombre"}</div>
+              <div className="text-lg font-medium">{booking.booking}</div>
               <div className="flex items-center text-gray-500">
                 <MapPin className="mr-2 h-4 w-4" />
-                {booking.accommodation || "Dirección no disponible"}
+                {booking.accomodation?.name || "Alojamiento no disponible"}
               </div>
             </div>
 
@@ -62,7 +68,7 @@ export function BookingDetailsDialog({ booking, open, onOpenChange, onUpdate, on
                 <div className="text-sm text-gray-500">Check-in</div>
                 <div className="flex items-center">
                   <Calendar className="mr-2 h-4 w-4" />
-                  {new Date(booking.checkIn).toLocaleDateString("es-ES", {
+                  {new Date(booking.check_in_date).toLocaleDateString("es-ES", {
                     weekday: "long",
                     day: "numeric",
                     month: "long",
@@ -74,7 +80,7 @@ export function BookingDetailsDialog({ booking, open, onOpenChange, onUpdate, on
                 <div className="text-sm text-gray-500">Check-out</div>
                 <div className="flex items-center">
                   <Calendar className="mr-2 h-4 w-4" />
-                  {new Date(booking.checkOut).toLocaleDateString("es-ES", {
+                  {new Date(booking.check_out_date).toLocaleDateString("es-ES", {
                     weekday: "long",
                     day: "numeric",
                     month: "long",
@@ -85,10 +91,10 @@ export function BookingDetailsDialog({ booking, open, onOpenChange, onUpdate, on
             </div>
 
             <div className="space-y-2">
-              <div className="text-sm font-medium">Información del Huésped</div>
+              <div className="text-sm font-medium">Información de la Reserva</div>
               <div className="flex items-center text-gray-500">
                 <User className="mr-2 h-4 w-4" />
-                {booking.guestName || "Huésped no especificado"}
+                {`Reserva: ${booking.booking}`}
               </div>
             </div>
 
@@ -96,7 +102,7 @@ export function BookingDetailsDialog({ booking, open, onOpenChange, onUpdate, on
               <div className="text-sm font-medium mb-2">Resumen de la Estancia</div>
               <div className="flex items-center text-gray-500">
                 <Moon className="mr-2 h-4 w-4" />
-                {nights} {nights === 1 ? "noche" : "noches"}
+                {`Monto total: $${booking.total_amount}`}
               </div>
             </div>
           </div>

@@ -1,39 +1,41 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { X } from "lucide-react"
-import { accommodations } from "../lib/data"
+import { createBooking } from "../services/bookingService"
+import accommodationGet from "../services/getting"
 
 export function NewBookingDialog({ open, onOpenChange, onSubmit }) {
   const [formData, setFormData] = useState({
-    accommodation: "",
-    guestName: "",
-    checkIn: "",
-    checkOut: "",
+    booking: "",
+    check_in_date: "",
+    check_out_date: "",
+    total_amount: 0,
+    accomodation_id: "",
+    user_id: 1, // Assuming a default user_id, you might want to handle this differently
   })
+  const [accommodations, setAccommodations] = useState([])
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchAccommodations()
+  }, [])
+
+  const fetchAccommodations = async () => {
+    try {
+      const data = await accommodationGet()
+      setAccommodations(data)
+    } catch (error) {
+      console.error("Failed to fetch accommodations", error)
+    }
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const checkIn = new Date(formData.checkIn)
-    const checkOut = new Date(formData.checkOut)
-
-    checkIn.setHours(0, 0, 0, 0)
-    checkOut.setHours(0, 0, 0, 0)
-
-    if (checkOut < checkIn) {
-      alert("La fecha de salida debe ser posterior a la fecha de entrada")
-      return
+    try {
+      const newBooking = await createBooking(formData)
+      onSubmit(newBooking)
+    } catch (error) {
+      console.error("Failed to create booking", error)
     }
-
-    const newBooking = {
-      id: Math.random().toString(36).substr(2, 9),
-      accommodation: formData.accommodation,
-      guestName: formData.guestName,
-      checkIn,
-      checkOut,
-      status: "pending",
-    }
-
-    onSubmit(newBooking)
   }
 
   if (!open) return null
@@ -51,77 +53,65 @@ export function NewBookingDialog({ open, onOpenChange, onSubmit }) {
           <div>
             <label className="block text-sm font-medium text-gray-700">Alojamiento</label>
             <select
-              value={formData.accommodation}
-              onChange={(e) => setFormData({ ...formData, accommodation: e.target.value })}
-              className="mt-2 block w-full rounded-lg border border-gray-300 bg-white py-2 px-3 shadow-md focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50 transition duration-150 ease-in-out"
-              aria-label="Seleccionar alojamiento"
+              value={formData.accomodation_id}
+              onChange={(e) => setFormData({ ...formData, accomodation_id: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
             >
-              <option value="" disabled>
-                Seleccionar alojamiento
-              </option>
+              <option value="">Seleccionar alojamiento</option>
               {accommodations.map((acc) => (
-                <option key={acc.id} value={acc.name}>
+                <option key={acc.id} value={acc.id}>
                   {acc.name}
                 </option>
               ))}
             </select>
-
           </div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="guestName"
-              className="block text-sm font-semibold text-gray-800"
-            >
-              Huésped
-                </label>
-                <input
-                  id="guestName"
-                  type="text"
-                  required
-                  value={formData.guestName}
-                  onChange={(e) => setFormData({ ...formData, guestName: e.target.value })}
-                  placeholder="Nombre del huésped"
-                  className="mt-2 block w-full rounded-lg border border-gray-300 bg-white py-2 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition duration-200 ease-in-out"
-                />
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Código de Reserva</label>
+            <input
+              type="text"
+              required
+              value={formData.booking}
+              onChange={(e) => setFormData({ ...formData, booking: e.target.value })}
+              placeholder="Código de reserva"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            />
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Fecha de inicio</label>
+              <input
+                type="date"
+                required
+                value={formData.check_in_date}
+                onChange={(e) => setFormData({ ...formData, check_in_date: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Fecha de fin</label>
+              <input
+                type="date"
+                required
+                value={formData.check_out_date}
+                onChange={(e) => setFormData({ ...formData, check_out_date: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              />
+            </div>
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label
-                    htmlFor="checkIn"
-                    className="block text-sm font-semibold text-gray-800"
-                  >
-                    Fecha de inicio
-                  </label>
-                  <input
-                    id="checkIn"
-                    type="date"
-                    required
-                    value={formData.checkIn}
-                    onChange={(e) => setFormData({ ...formData, checkIn: e.target.value })}
-                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white py-2 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition duration-200 ease-in-out"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="checkOut"
-                    className="block text-sm font-semibold text-gray-800"
-                  >
-                    Fecha de fin
-                  </label>
-                  <input
-                    id="checkOut"
-                    type="date"
-                    required
-                    value={formData.checkOut}
-                    onChange={(e) => setFormData({ ...formData, checkOut: e.target.value })}
-                    className="mt-2 block w-full rounded-lg border border-gray-300 bg-white py-2 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition duration-200 ease-in-out"
-                  />
-                </div>
-              </div>
-
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Monto Total</label>
+            <input
+              type="number"
+              required
+              value={formData.total_amount}
+              onChange={(e) => setFormData({ ...formData, total_amount: Number.parseFloat(e.target.value) })}
+              placeholder="Monto total"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            />
+          </div>
 
           <div className="flex justify-end gap-2 pt-4">
             <button

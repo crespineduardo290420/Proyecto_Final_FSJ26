@@ -1,17 +1,91 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight, Filter, Search } from "lucide-react"
 import { NewBookingDialog } from "./NewBookingDialog"
 import { BookingDetailsDialog } from "./BookingDetailsDialog"
-import { accommodations, initialBookings } from "../lib/data"
+import { getBookings, getBookingsCalendar, createBooking, updateBookingStatus } from "../services/bookingService"
+import accommodationGet from "../services/getting"
 
 export function BookingCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
-  const [bookings, setBookings] = useState(initialBookings)
+  const [bookings, setBookings] = useState([])
   const [selectedBooking, setSelectedBooking] = useState(null)
   const [showNewBooking, setShowNewBooking] = useState(false)
   const [selectedAccommodation, setSelectedAccommodation] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [accommodations, setAccommodations] = useState([])
+
+  useEffect(() => {
+    fetchBookings()
+    fetchAccommodations()
+  }, [])
+
+  useEffect(() => {
+    fetchBookingsCalendar()
+  }, [selectedAccommodation, selectedStatus, searchQuery]) // Updated dependency array
+
+  const fetchBookings = async () => {
+    try {
+      const data = await getBookings()
+      setBookings(data)
+    } catch (error) {
+      console.error("Failed to fetch bookings", error)
+    }
+  }
+
+  const fetchAccommodations = async () => {
+    try {
+      const data = await accommodationGet()
+      setAccommodations(data)
+    } catch (error) {
+      console.error("Failed to fetch accommodations", error)
+    }
+  }
+
+  const fetchBookingsCalendar = async () => {
+    const startDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
+    const endDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0)
+    try {
+      const data = await getBookingsCalendar(
+        selectedAccommodation === "all" ? "" : selectedAccommodation,
+        startDate.toISOString().split("T")[0],
+        endDate.toISOString().split("T")[0],
+      )
+      setBookings(data)
+    } catch (error) {
+      console.error("Failed to fetch bookings calendar", error)
+    }
+  }
+
+  const handleNewBooking = async (booking) => {
+    try {
+      await createBooking(booking)
+      setShowNewBooking(false)
+      fetchBookingsCalendar()
+    } catch (error) {
+      console.error("Failed to create booking", error)
+    }
+  }
+
+  const handleUpdateBooking = async (updatedBooking) => {
+    try {
+      await updateBookingStatus(updatedBooking.id, updatedBooking.status)
+      setSelectedBooking(null)
+      fetchBookingsCalendar()
+    } catch (error) {
+      console.error("Failed to update booking", error)
+    }
+  }
+
+  const handleDeleteBooking = async (bookingId) => {
+    try {
+      await updateBookingStatus(bookingId, "CANCELLED")
+      setSelectedBooking(null)
+      fetchBookingsCalendar()
+    } catch (error) {
+      console.error("Failed to cancel booking", error)
+    }
+  }
 
   const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate()
   const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay()
@@ -32,21 +106,6 @@ export function BookingCalendar() {
     })
   }
 
-  const handleNewBooking = (booking) => {
-    setBookings([...bookings, booking])
-    setShowNewBooking(false)
-  }
-
-  const handleUpdateBooking = (updatedBooking) => {
-    setBookings(bookings.map((b) => (b.id === updatedBooking.id ? updatedBooking : b)))
-    setSelectedBooking(null)
-  }
-
-  const handleDeleteBooking = (bookingId) => {
-    setBookings(bookings.filter((b) => b.id !== bookingId))
-    setSelectedBooking(null)
-  }
-
   const monthName = currentMonth.toLocaleString("es-ES", { month: "long", year: "numeric" })
 
   return (
@@ -61,7 +120,7 @@ export function BookingCalendar() {
             </button>
             <button
               onClick={() => setShowNewBooking(true)}
-              className="px-4 py-2 bg-[#E3F64B] text-black font-medium rounded-md hover:bg-[#d4e745]"
+              className="px-4 py-2 bg-[#E3F64B] text-black rounded-md hover:bg-[#d4e745]"
             >
               + Nueva Reservación
             </button>
