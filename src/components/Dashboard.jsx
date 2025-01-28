@@ -1,9 +1,10 @@
 import "../App.css"
 import React, { useEffect, useState } from "react"
 import Accommodation from "./accomodation"
-import Reservaciones from "./reservaciones"
-import { BookingCalendar } from "./BookingCalendar"
+
 import { useNavigate } from "react-router-dom";
+import CalendarBooking from './CalendarBooking';
+
 
 function Dashboard() {
   // Estado para manejar el componente activo
@@ -158,7 +159,7 @@ function Dashboard() {
         {activeComponent === "accommodation" ? (
           <Accommodation isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
         ) : (
-          <BookingCalendar />
+          <CalendarBooking />
         )}
       </div>
     </div>
